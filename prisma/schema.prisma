@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  name                  String?
+  email                 String    @unique
+  username              String?
+  password              String?
+  emailVerified         DateTime?
+  image                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  phone                 String?
+  age                   Int?
+  nationality           String?
+  currentRole           String?   // Current job title
+  yearsOfExperience    Int?      // Years of experience
+  targetRole            String?   // "Backend Engineer", "Frontend Engineer", "DevOps"
+  skills                String?   // Comma-separated skills
+  preferredCompanies    String?   // Comma-separated companies
+  careerGoals           String?   // Career aspirations
+  interviewPreferences  String?   // Any specific interview preferences
+  filledProfile         Boolean?  @default(false)
+  plan                  Plan?     @default(FREE)
+  totalTimeUsed         Int?      @default(0)
+  sessions              Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+  summary   String?
+  updatedAt DateTime @updatedAt
+  duration  Int?     @default(0)
+  chats     Chat[]
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Chat {
+  id        String      @id @default(cuid())
+  sessionId String
+  message   String
+  createdAt DateTime    @default(now())
+  sender    SenderType?
+  session   Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model InterviewResource {
+  id                Int      @id @default(autoincrement())
+  role              String   // "Backend Engineer", "Frontend Engineer", "DevOps"
+  question          String   // The actual interview question
+  answer            String?  // Sample answer or key points
+  difficulty        String?  // "Easy", "Medium", "Hard"
+  company           String?  // "Google", "Meta", "Amazon", etc.
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SenderType {
+  AI
+  USER
+}
