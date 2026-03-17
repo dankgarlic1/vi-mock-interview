@@ -4,60 +4,51 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const apiKey = req.headers.get('x-api-key'); // Retrieve the API key from the request headers
+    const apiKey = process.env.HEYGEN_API_KEY;
+    console.log('hekllo', apiKey);
 
-    // console.log('body:', body);
-    // console.log(`Received API Key: ${apiKey}`);
-
-    if (!apiKey) {
-      throw new Error('API key is missing from the request headers');
-    }
-
-    const res = await fetch(
-      'https://api.heygen.com/v1/streaming.create_token',
+    const response = await fetch(
+      'https://api.liveavatar.com/v1/sessions/token',
       {
         method: 'POST',
         headers: {
-          'x-api-key': apiKey, // Use the API key from headers
+          'x-api-key': apiKey,
+          'Content-Type': 'application/json',
+          accept: 'application/json',
         },
+        body: JSON.stringify({
+          avatar_id: '64b526e4-741c-43b6-a918-4e40f3261c7a',
+          mode: 'LITE',
+          interactivity_type: 'CONVERSATIONAL',
+        }),
       }
     );
 
-    if (!res.ok) {
-      throw new Error('Failed to retrieve access token');
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data?.message || 'Failed to create session token');
     }
 
-    const data = await res.json();
-    // console.log(`${JSON.stringify(data)}`);
+    const liveSessionId = data.data.session_id;
 
     const session = await prisma.session.create({
       data: {
         userId: body.userId,
+        liveAvatarSessionId: liveSessionId,
       },
     });
 
-    // console.log('session:', session);
-    // console.log('token:', data.data.token);
-
-    return NextResponse.json(
-      { token: data.data.token, sessionId: session.id },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      token: data.data.session_token,
+      sessionId: session.id, //DB session
+      liveSessionId, //external session
+    });
   } catch (error) {
-    // Improved error logging
-    console.error('Error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : null,
-    });
+    console.error(error);
 
-    // Return a more informative error response
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : 'An unexpected error occurred',
-      },
+      { error: 'Failed to create session' },
       { status: 500 }
     );
   }

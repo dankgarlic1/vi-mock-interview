@@ -106,24 +106,31 @@ const useAvtarSession = ({ user }: { user: User }) => {
     }
   }
 
-  const HEYGEN_API_KEY = process.env.NEXT_PUBLIC_HEYGEN_API_KEY;
+  const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
 
   // Diagnostic function to check HeyGen API connectivity
   async function testHeyGenConnection() {
     try {
       console.log('Testing HeyGen API connectivity...');
-      const response = await fetch('https://api.heygen.com/v1/streaming.create_token', {
-        method: 'POST',
-        headers: {
-          'x-api-key': HEYGEN_API_KEY || '',
-        },
-      });
-      
+      const response = await fetch(
+        'https://api.heygen.com/v1/streaming.create_token',
+        {
+          method: 'POST',
+          headers: {
+            'x-api-key': HEYGEN_API_KEY || '',
+          },
+        }
+      );
+
       if (response.ok) {
         console.log('✅ HeyGen API connection successful');
         return true;
       } else {
-        console.error('❌ HeyGen API connection failed:', response.status, response.statusText);
+        console.error(
+          '❌ HeyGen API connection failed:',
+          response.status,
+          response.statusText
+        );
         return false;
       }
     } catch (error) {
@@ -132,13 +139,17 @@ const useAvtarSession = ({ user }: { user: User }) => {
     }
   }
   async function getCandidateDetails() {
-    let candidateDetails = "";
+    let candidateDetails = '';
     try {
       const res = await getStudentById(userId);
       candidateDetails = JSON.stringify(res, null, 2); // Format details for readability
     } catch (error) {
-      console.error("Error fetching candidate details for system prompt:", error);
-      candidateDetails = "No additional context is available for this candidate.";
+      console.error(
+        'Error fetching candidate details for system prompt:',
+        error
+      );
+      candidateDetails =
+        'No additional context is available for this candidate.';
     }
     return candidateDetails;
   }
@@ -152,11 +163,11 @@ const useAvtarSession = ({ user }: { user: User }) => {
       setLoading(false);
       console.log('Avatar started talking', e);
     });
-    
+
     avatar.current?.on(StreamingEvents.AVATAR_STOP_TALKING, (e) => {
       console.log('Avatar stopped talking', e);
     });
-    
+
     avatar.current?.on(StreamingEvents.STREAM_DISCONNECTED, () => {
       console.log('Stream disconnected');
       if (isSessionActive) {
@@ -166,11 +177,11 @@ const useAvtarSession = ({ user }: { user: User }) => {
         setStartLoading(false);
       }
     });
-    
+
     avatar.current?.on(StreamingEvents.STREAM_READY, (event) => {
       console.log('>>>>> Stream ready:', event.detail);
       setStream(event.detail);
-      
+
       // Automatically start the interview with an initial question
       setTimeout(() => {
         if (isSessionActive) {
@@ -178,12 +189,12 @@ const useAvtarSession = ({ user }: { user: User }) => {
         }
       }, 1000); // Small delay to ensure everything is ready
     });
-    
+
     avatar.current?.on(StreamingEvents.USER_START, (event) => {
       console.log('>>>>> User started talking:', event);
       setIsUserTalking(true);
     });
-    
+
     avatar.current?.on(StreamingEvents.USER_STOP, (event) => {
       console.log('>>>>> User stopped talking:', event);
       setIsUserTalking(false);
@@ -195,11 +206,16 @@ const useAvtarSession = ({ user }: { user: User }) => {
       console.log('>>>>> User voice message received:', userMessage);
       console.log('>>>>> Current chat mode:', chatMode);
       console.log('>>>>> Is voice mode:', isVoiceMode);
-      console.log('>>>>> OpenAI Assistant available:', !!openaiAssistant.current);
-      
+      console.log(
+        '>>>>> OpenAI Assistant available:',
+        !!openaiAssistant.current
+      );
+
       // Process the voice input through voice-specific flow (no chat display)
       if (userMessage && userMessage.trim().length > 0) {
-        console.log('>>>>> Processing voice message through handleVoiceSpeak...');
+        console.log(
+          '>>>>> Processing voice message through handleVoiceSpeak...'
+        );
         await handleVoiceSpeak(userMessage.trim());
       } else {
         console.log('>>>>> Voice message was empty or invalid');
@@ -244,7 +260,7 @@ const useAvtarSession = ({ user }: { user: User }) => {
         avatarName: 'Wayne_20240711',
         language: language,
         disableIdleTimeout: true,
-        voice: { rate: 2.0, emotion: VoiceEmotion.SERIOUS },
+        voice: { rate: 1.2, emotion: VoiceEmotion.SERIOUS },
         knowledgeBase: `You are an experienced interviewer representing a host company for Virtual Internships. Your role is to simulate a realistic and supportive interview for an intern applying for a remote internship.
 
 **PERSONA:**
@@ -265,18 +281,19 @@ ${candidateDetails}
 
 **IMPORTANT:** You will receive dynamic question contexts and guidance from the OpenAI assistant. Follow those recommendations for the most relevant and up-to-date interview questions.`,
       });
-      
+
       console.log(`Avatar creation response:`, res);
       setData(res);
       setIsSessionActive(true);
-      
+
       // Let the event listeners handle the stream setup
       // Stream should be ready when STREAM_READY event fires
       setStartLoading(false);
-
     } catch (error) {
       console.error('Failed to create avatar:', error);
-      toast.error('Failed to create avatar. Please check your connection and try again.');
+      toast.error(
+        'Failed to create avatar. Please check your connection and try again.'
+      );
       setStartLoading(false);
       setIsSessionActive(false);
     }
@@ -285,7 +302,7 @@ ${candidateDetails}
   // Function to start the interview with an initial question
   async function startInterview() {
     console.log('Starting interview with initial question...');
-    
+
     try {
       if (!openaiAssistant.current) {
         openaiAssistant.current = new OpenAIAssistant(userId);
@@ -294,7 +311,8 @@ ${candidateDetails}
       }
 
       // Get initial interview question
-      const initialQuestion = await openaiAssistant.current.getInitialQuestion();
+      const initialQuestion =
+        await openaiAssistant.current.getInitialQuestion();
       console.log('Initial question:', initialQuestion);
 
       // Add to messages and speak
@@ -310,16 +328,23 @@ ${candidateDetails}
 
       // Store the initial message
       if (sessionIdRef.current) {
-        const write = storeChats({ sessionId: sessionIdRef.current, message: initialQuestion, sender: 'AI' });
+        const write = storeChats({
+          sessionId: sessionIdRef.current,
+          message: initialQuestion,
+          sender: 'AI',
+        });
         pendingChatWritesRef.current.push(write);
         await write.catch(() => {});
       }
-
     } catch (error) {
       console.error('Error starting interview:', error);
-      const fallbackQuestion = "Hello! Welcome to your mock interview. What specific role are you interviewing for today?";
-      setMessages((prev) => [...prev, { text: fallbackQuestion, sender: 'ai' }]);
-      
+      const fallbackQuestion =
+        'Hello! Welcome to your mock interview. What specific role are you interviewing for today?';
+      setMessages((prev) => [
+        ...prev,
+        { text: fallbackQuestion, sender: 'ai' },
+      ]);
+
       if (avatar.current && isSessionActive) {
         console.log('Using fallback question...');
         await avatar.current.speak({
@@ -404,8 +429,16 @@ ${candidateDetails}
 
       // Store the chat history and await writes to ensure persistence
       if (sessionIdRef.current) {
-        const userWrite = storeChats({ sessionId: sessionIdRef.current, message: userQuery, sender: 'USER' });
-        const aiWrite = storeChats({ sessionId: sessionIdRef.current, message: response, sender: 'AI' });
+        const userWrite = storeChats({
+          sessionId: sessionIdRef.current,
+          message: userQuery,
+          sender: 'USER',
+        });
+        const aiWrite = storeChats({
+          sessionId: sessionIdRef.current,
+          message: response,
+          sender: 'AI',
+        });
         pendingChatWritesRef.current.push(userWrite, aiWrite);
         await Promise.allSettled([userWrite, aiWrite]);
       }
@@ -429,11 +462,11 @@ ${candidateDetails}
       setDebug(e.message);
     });
   }
-  
+
   async function endSession() {
     console.log('🏁 Ending session...');
     setIsSessionActive(false);
-    
+
     // Stop the avatar first
     if (avatar.current) {
       try {
@@ -443,7 +476,7 @@ ${candidateDetails}
         console.error('❌ Error stopping avatar:', error);
       }
     }
-    
+
     // Flush any pending chat writes before summarizing
     if (pendingChatWritesRef.current.length > 0) {
       try {
@@ -455,16 +488,24 @@ ${candidateDetails}
     // Generate summary if session has chats
     if (sessionIdRef.current) {
       try {
-        console.log('🔄 Generating session summary for session:', sessionIdRef.current);
-        
+        console.log(
+          '🔄 Generating session summary for session:',
+          sessionIdRef.current
+        );
+
         // Let's check if we have any chats first
         console.log('📊 Current messages in UI:', messages.length);
-        
+
         const result = await summarizeChat(sessionIdRef.current);
         if (result) {
-          console.log('✅ Session summary generated successfully:', result.summary);
+          console.log(
+            '✅ Session summary generated successfully:',
+            result.summary
+          );
         } else {
-          console.warn('⚠️ No summary result returned - this might be normal if no chats exist');
+          console.warn(
+            '⚠️ No summary result returned - this might be normal if no chats exist'
+          );
         }
       } catch (error) {
         console.error('❌ Error generating summary:', error);
@@ -472,15 +513,15 @@ ${candidateDetails}
     } else {
       console.warn('⚠️ No sessionId available for summary generation');
     }
-    
+
     setStream(undefined);
-    
+
     // Add a small delay before redirect to ensure summary completes
     setTimeout(() => {
       window.location.href = '/dashboard';
     }, 1000);
   }
-  
+
   const handleChangeChatMode = useMemoizedFn(async (v) => {
     if (v === chatMode) {
       return;
@@ -503,7 +544,7 @@ ${candidateDetails}
         if (!avatar.current || !isSessionActive) {
           await startSession(); // Your existing session start method
           // Wait a bit for session to be fully ready
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          await new Promise((resolve) => setTimeout(resolve, 1500));
         }
 
         // Initialize OpenAI assistant if not already done
@@ -524,11 +565,15 @@ ${candidateDetails}
         if (messages.length === 0 && openaiAssistant.current) {
           console.log('Starting interview flow in voice mode...');
           try {
-            const initialQuestion = await openaiAssistant.current.getInitialQuestion();
+            const initialQuestion =
+              await openaiAssistant.current.getInitialQuestion();
             console.log('Initial question:', initialQuestion);
-            
-            setMessages((prev) => [...prev, { text: initialQuestion, sender: 'ai' }]);
-            
+
+            setMessages((prev) => [
+              ...prev,
+              { text: initialQuestion, sender: 'ai' },
+            ]);
+
             if (avatar.current && isSessionActive) {
               await avatar.current.speak({
                 text: initialQuestion,
@@ -539,14 +584,22 @@ ${candidateDetails}
 
             // Store the initial AI message
             if (sessionId) {
-              storeChats({ sessionId: sessionId, message: initialQuestion, sender: 'AI' });
+              storeChats({
+                sessionId: sessionId,
+                message: initialQuestion,
+                sender: 'AI',
+              });
             }
           } catch (error) {
-            console.error('Error getting initial question in voice mode:', error);
+            console.error(
+              'Error getting initial question in voice mode:',
+              error
+            );
           }
         } else if (messages.length > 0) {
           // If conversation already exists, let user know voice mode is active
-          const voiceModeMessage = "Voice mode is now active. Please speak your response.";
+          const voiceModeMessage =
+            'Voice mode is now active. Please speak your response.';
           if (avatar.current && isSessionActive) {
             await avatar.current.speak({
               text: voiceModeMessage,
@@ -586,7 +639,7 @@ ${candidateDetails}
     ]);
     setText('');
   }
-  
+
   /* ***Voice-specific handler that doesn't add to chat display*** */
   async function handleVoiceSpeak(userQuery: string) {
     console.log(`handleVoiceSpeak triggered with: ${userQuery}`);
@@ -620,7 +673,10 @@ ${candidateDetails}
         const searchData = await searchResponse.json();
         if (searchData.success && searchData.contexts) {
           interviewContexts = searchData.contexts;
-          console.log('Voice mode - Interview contexts:', interviewContexts.length);
+          console.log(
+            'Voice mode - Interview contexts:',
+            interviewContexts.length
+          );
         }
       }
     } catch (error) {
@@ -647,12 +703,19 @@ ${candidateDetails}
 
       // Store the chat history (but don't display in UI)
       if (sessionIdRef.current) {
-        const userWrite = storeChats({ sessionId: sessionIdRef.current, message: userQuery, sender: 'USER' });
-        const aiWrite = storeChats({ sessionId: sessionIdRef.current, message: response, sender: 'AI' });
+        const userWrite = storeChats({
+          sessionId: sessionIdRef.current,
+          message: userQuery,
+          sender: 'USER',
+        });
+        const aiWrite = storeChats({
+          sessionId: sessionIdRef.current,
+          message: response,
+          sender: 'AI',
+        });
         pendingChatWritesRef.current.push(userWrite, aiWrite);
         await Promise.allSettled([userWrite, aiWrite]);
       }
-
     } catch (e: any) {
       setLoading(false);
       setDebug(`Voice mode error: ${e.message}`);
