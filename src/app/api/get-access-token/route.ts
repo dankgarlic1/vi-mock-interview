@@ -5,21 +5,43 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const apiKey = process.env.HEYGEN_API_KEY;
-    console.log('hekllo', apiKey);
 
     const response = await fetch(
       'https://api.liveavatar.com/v1/sessions/token',
       {
         method: 'POST',
         headers: {
-          'x-api-key': apiKey,
+          'x-api-key': apiKey!,
           'Content-Type': 'application/json',
           accept: 'application/json',
         },
         body: JSON.stringify({
           avatar_id: '64b526e4-741c-43b6-a918-4e40f3261c7a',
-          mode: 'LITE',
+
+          mode: 'FULL',
+
           interactivity_type: 'CONVERSATIONAL',
+
+          avatar_persona: {
+            language: 'en',
+
+            prompt: `
+You are an experienced interviewer representing Virtual Internships.
+
+- Ask structured questions
+- One question at a time
+- No feedback during interview
+- Keep under 50 words
+- Be professional but warm
+- Test candidates first principles heavily
+
+Candidate info:
+${body.candidateContext || 'No context provided'}
+            `,
+
+            opening_text:
+              "Hi, welcome to your interview. Let's begin. Tell me about yourself.",
+          },
         }),
       }
     );
@@ -27,6 +49,7 @@ export async function POST(req: NextRequest) {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error(data);
       throw new Error(data?.message || 'Failed to create session token');
     }
 
@@ -41,8 +64,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       token: data.data.session_token,
-      sessionId: session.id, //DB session
-      liveSessionId, //external session
+      sessionId: session.id,
+      liveSessionId,
     });
   } catch (error) {
     console.error(error);
