@@ -6,8 +6,6 @@
 >
 > It became a core part of my resume and something I genuinely enjoyed building and showing.
 
----
-
 ### What happened?
 
 HeyGen has sunset their API and moved to Live Avatar  
@@ -18,7 +16,6 @@ I did start working on migrating this project (you can check the `development` b
 
 That makes it really hard to keep this project running or showcase it properly.
 
----
 
 ### Why it's archived
 
@@ -29,13 +26,20 @@ So for now, I’m archiving it.
 
 The migration work in the `development` branch is incomplete and not fully polished, especially on the frontend.
 
----
 
 ### Final note
 
 This project still means a lot to me.
 
 I might come back to it in the future if things change.
+
+
+
+## 🏆 Hackathon Result
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1650357b-32c1-46ac-b8fd-2605695f3c18" width="500" />
+</p>
+
 # VI Mock Interview Agent
 
 VI Mock Interview Agent is an AI-powered video platform designed for practicing mock interviews with smart feedback and question generation.
