@@ -1,3 +1,41 @@
+## ⚠️ Project Archived (But Still Special to Me)
+
+> This project is one of the closest things I’ve built.
+>
+> I worked on it during my internship for a company hackathon, where I was the only developer on my team. We ended up winning 1st place in my second week itself, which made this project even more meaningful to me.
+>
+> It became a core part of my resume and something I genuinely enjoyed building and showing.
+
+---
+
+### What happened?
+
+HeyGen has sunset their API and moved to Live Avatar  
+→ Migration guide: https://docs.liveavatar.com/docs/interactive-avatar-migration-guide  
+→ Pricing: https://docs.liveavatar.com/docs/credits-and-subscriptions  
+
+I did start working on migrating this project (you can check the `development` branch), but the new credit system, while sounding similar on paper, has a much higher per-minute cost.
+
+That makes it really hard to keep this project running or showcase it properly.
+
+---
+
+### Why it's archived
+
+I understand that companies need to evolve and monetize their products.  
+This is just one of those situations where the new constraints don’t work well for an individual project like this.
+
+So for now, I’m archiving it.
+
+The migration work in the `development` branch is incomplete and not fully polished, especially on the frontend.
+
+---
+
+### Final note
+
+This project still means a lot to me.
+
+I might come back to it in the future if things change.
 # VI Mock Interview Agent
 
 VI Mock Interview Agent is an AI-powered video platform designed for practicing mock interviews with smart feedback and question generation.
