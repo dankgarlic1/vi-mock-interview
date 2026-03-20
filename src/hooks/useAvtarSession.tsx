@@ -16,6 +16,7 @@ export default function useAvtarSession({ user }: any) {
   const assistantRef = useRef<OpenAIAssistant | null>(null);
 
   const userId = user.id;
+  const targetRole = user.targetRole;
 
   // 🔥 SEND EVENT
   function sendEvent(payload: any) {
@@ -63,6 +64,11 @@ export default function useAvtarSession({ user }: any) {
       console.log('SESSION RESPONSE:', data);
 
       if (!res.ok) {
+        if (data?.code === 4033) {
+          setDebug('NO_CREDITS');
+          return;
+        }
+
         throw new Error(data?.message || 'Session failed');
       }
 
@@ -140,8 +146,38 @@ export default function useAvtarSession({ user }: any) {
                 { text: userText, sender: 'user' },
               ]);
 
-              const response =
-                await assistantRef.current!.getResponse(userText);
+              const res = await fetch('/api/search-interview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  query: `${targetRole} interview: ${userText}`,
+                }),
+              });
+
+              const ragData = await res.json();
+
+              const contexts = ragData?.contexts || [];
+
+              console.log('RAG:', contexts);
+
+              // 🔥 STEP 2: pass into LLM
+              const response = await assistantRef.current!.getResponse(
+                `
+You are a strict interviewer for a ${targetRole} role.
+
+Context:
+${contexts.join('\n')}
+
+User answer:
+${userText}
+
+Your job:
+- Ask the NEXT relevant interview question
+- Do NOT answer
+- Do NOT explain
+- Keep it short and realistic
+`
+              );
 
               console.log('AI:', response);
 
@@ -177,7 +213,19 @@ export default function useAvtarSession({ user }: any) {
 
       // 🔥 FIRST QUESTION
       setTimeout(async () => {
-        const first = await assistantRef.current!.getInitialQuestion();
+        const res = await fetch('/api/search-interview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: `${targetRole} interview questions` }),
+        });
+
+        const ragData = await res.json();
+        const contexts = ragData?.contexts || [];
+
+        const first = await assistantRef.current!.getResponse(
+          'Start interview',
+          contexts
+        );
 
         console.log('FIRST QUESTION:', first);
 
