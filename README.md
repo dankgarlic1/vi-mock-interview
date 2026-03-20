@@ -2,38 +2,67 @@
 
 > This project is one of the closest things I’ve built.
 >
-> I worked on it during my internship for a company hackathon, where I was the only developer on my team. We ended up winning 1st place in my second week itself, which made this project even more meaningful to me.
+> I worked on it during my internship for a company hackathon, where I was the only developer on my team. We ended up winning **1st place in my second week**, which made this project even more meaningful to me.
 >
-> It became a core part of my resume and something I genuinely enjoyed building and showing.
+> It became a core part of my resume and something I genuinely enjoyed building and presenting.
 
-### What happened?
+---
 
-HeyGen has sunset their API and moved to Live Avatar  
-→ Migration guide: https://docs.liveavatar.com/docs/interactive-avatar-migration-guide  
-→ Pricing: https://docs.liveavatar.com/docs/credits-and-subscriptions  
+### 🚧 What happened?
 
-I did start working on migrating this project (you can check the `development` branch), but the new credit system, while sounding similar on paper, has a much higher per-minute cost.
+HeyGen sunset their API and introduced the new **Live Avatar** system:
 
-That makes it really hard to keep this project running or showcase it properly.
+- 🔗 Migration guide: https://docs.liveavatar.com/docs/interactive-avatar-migration-guide  
+- 💰 Pricing: https://docs.liveavatar.com/docs/credits-and-subscriptions  
+
+I **successfully migrated the system from HeyGen to Live Avatar**, including:
+
+- Real-time avatar session handling (**LiveKit**)  
+- Event-driven voice interaction loop  
+- Integration with a **RAG-based interview engine**  
+
+---
+
+### 💸 Why it’s still archived
+
+While the migration is technically complete, the new **credit-based pricing model** is significantly more expensive per session.
+
+This makes it difficult to:
+
+- Run continuous demos  
+- Maintain a publicly accessible version  
+- Showcase the avatar feature reliably  
+
+---
+
+### 🧠 What still works
+
+The **core system remains fully functional** and is the main highlight of this project:
+
+- RAG-based interview question retrieval (Pinecone + embeddings)  
+- Dynamic role-based interview flow  
+- Context-aware conversational AI loop (follow-ups, adaptive questioning)  
+- Real-time interaction pipeline  
+
+---
+
+### 🧩 Takeaway
+
+> This project reflects a real-world engineering tradeoff:
+>
+> External platform changes can directly impact product feasibility, even when the system itself is technically sound.
 
 
-### Why it's archived
 
-I understand that companies need to evolve and monetize their products.  
-This is just one of those situations where the new constraints don’t work well for an individual project like this.
-
-So for now, I’m archiving it.
-
-The migration work in the `development` branch is incomplete and not fully polished, especially on the frontend.
-
-
-### Final note
+---
+### ❤️ Final note
 
 This project still means a lot to me.
 
-I might come back to it in the future if things change.
+I may revisit it in the future if pricing or infrastructure constraints change.
 
 
+<br/>
 
 ## 🏆 Hackathon Result
 <p align="center">
