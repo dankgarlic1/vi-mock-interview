@@ -8,29 +8,29 @@ datasource db {
 }
 
 model User {
-  id                    String    @id @default(cuid())
-  name                  String?
-  email                 String    @unique
-  username              String?
-  password              String?
-  emailVerified         DateTime?
-  image                 String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  phone                 String?
-  age                   Int?
-  nationality           String?
-  currentRole           String?   // Current job title
-  yearsOfExperience    Int?      // Years of experience
-  targetRole            String?   // "Backend Engineer", "Frontend Engineer", "DevOps"
-  skills                String?   // Comma-separated skills
-  preferredCompanies    String?   // Comma-separated companies
-  careerGoals           String?   // Career aspirations
-  interviewPreferences  String?   // Any specific interview preferences
-  filledProfile         Boolean?  @default(false)
-  plan                  Plan?     @default(FREE)
-  totalTimeUsed         Int?      @default(0)
-  sessions              Session[]
+  id                   String    @id @default(cuid())
+  name                 String?
+  email                String    @unique
+  username             String?
+  password             String?
+  emailVerified        DateTime?
+  image                String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  phone                String?
+  age                  Int?
+  nationality          String?
+  plan                 Plan?     @default(FREE)
+  totalTimeUsed        Int?      @default(0)
+  careerGoals          String?
+  currentRole          String?
+  filledProfile        Boolean?  @default(false)
+  interviewPreferences String?
+  preferredCompanies   String?
+  skills               String?
+  targetRole           String?
+  yearsOfExperience    Int?
+  sessions             Session[]
 }
 
 model Session {
@@ -40,6 +40,8 @@ model Session {
   summary   String?
   updatedAt DateTime @updatedAt
   duration  Int?     @default(0)
+  liveAvatarSessionId   String?  
+  liveAvatarToken      String?
   chats     Chat[]
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -54,14 +56,17 @@ model Chat {
 }
 
 model InterviewResource {
-  id                Int      @id @default(autoincrement())
-  role              String   // "Backend Engineer", "Frontend Engineer", "DevOps"
-  question          String   // The actual interview question
-  answer            String?  // Sample answer or key points
-  difficulty        String?  // "Easy", "Medium", "Hard"
-  company           String?  // "Google", "Meta", "Amazon", etc.
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  role            String
+  question        String
+  answer          String?
+  difficulty      String?
+  company         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  category        String?
+  experienceLevel String?
+  keywords        String?
 }
 
 model VerificationToken {
