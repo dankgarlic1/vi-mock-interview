@@ -7,7 +7,6 @@ const pc = new Pinecone({
 });
 
 const interviewIndex = pc.index('ai-interviewe');
-const model = genAI.getGenerativeModel({ model: 'text-embedding-004' });
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,8 +20,27 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('Getting embeddings for query:', query);
-    const embeddingResult = await model.embedContent(query);
-    const embeddingVector = embeddingResult.embedding.values;
+    const embeddingResult = await genAI.models.embedContent({
+      model: 'gemini-embedding-001',
+      contents: query,
+      config: {
+        taskType: 'RETRIEVAL_QUERY',
+        outputDimensionality: 768,
+      },
+    });
+
+    if (
+      !embeddingResult.embeddings ||
+      embeddingResult.embeddings.length === 0
+    ) {
+      throw new Error('Failed to generate embeddings');
+    }
+
+    const embeddingVector = embeddingResult.embeddings[0].values;
+
+    if (!embeddingVector) {
+      throw new Error('Embedding vector is undefined');
+    }
     console.log('Got embeddings, vector length:', embeddingVector.length);
 
     console.log('Searching Pinecone...');
@@ -64,8 +82,8 @@ Relevance Score: ${match.score ? Math.round(match.score * 100) / 100 : 'Not avai
   } catch (error) {
     console.error('Error in search API:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         contexts: [],
         totalResults: 0,
@@ -73,4 +91,4 @@ Relevance Score: ${match.score ? Math.round(match.score * 100) / 100 : 'Not avai
       { status: 500 }
     );
   }
-} 
+}

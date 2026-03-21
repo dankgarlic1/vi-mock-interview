@@ -3,11 +3,14 @@ import prisma from '@/lib/prisma';
 import { $Enums } from '@prisma/client';
 import { genAI } from '@/lib/GeminiClient';
 
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
-
 export async function POST(req: NextRequest) {
   try {
     const { message, contexts, metadata } = await req.json();
+
+    const isSmallTalk =
+      !message ||
+      message.trim().length < 10 ||
+      ['hi', 'hello', 'hey'].includes(message.toLowerCase());
 
     if (
       !process.env.GEMINI_API_KEY &&
@@ -16,8 +19,26 @@ export async function POST(req: NextRequest) {
       throw new Error('Gemini API key is not configured');
     }
 
-    const prompt = `
-You are an expert interview coach at VI Mock Interview Agent, specializing in technical and behavioral interview preparation. 
+    let prompt = '';
+
+    const hasContext = contexts && contexts.length > 0;
+
+    if (isSmallTalk || !hasContext) {
+      prompt = `
+You are a friendly but professional interview assistant.
+
+User said: "${message}"
+
+Respond naturally like a human:
+- Greet them
+- Ask what role they are preparing for
+- Offer to start a mock interview
+
+Keep it short.
+`;
+    } else {
+      prompt = `
+you are an expert interview coach at VI Mock Interview Agent, specializing in technical and behavioral interview preparation. 
 I have found ${metadata?.totalResults || 'several'} relevant interview questions and scenarios that might be helpful for the user's query.
 
 Here are the detailed interview resources:
@@ -44,16 +65,20 @@ Remember to:
 - Encourage the user to practice and ask follow-up questions about specific scenarios
 
 Response:`;
+    }
 
-    const result = await model.generateContentStream(prompt);
+    const result = await genAI.models.generateContentStream({
+      model: 'gemini-2.5-flash-lite',
+      contents: prompt,
+    });
 
     // Create a readable stream
     const encoder = new TextEncoder();
     const readableStream = new ReadableStream({
       async start(controller) {
         try {
-          for await (const chunk of result.stream) {
-            const text = chunk.text();
+          for await (const chunk of result) {
+            const text = chunk.text || '';
             controller.enqueue(encoder.encode(text));
           }
           controller.close();
