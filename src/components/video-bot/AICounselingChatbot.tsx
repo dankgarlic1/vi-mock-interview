@@ -78,6 +78,7 @@ export default function AICounselingChatbot({ user }: { user: User }) {
         `Retrying connection... (${retryCount + 1}/${maxRetries})`,
         toastStyles.info
       );
+      await endSession();
       await startSession();
     } else {
       toast.error(

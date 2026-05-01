@@ -4,6 +4,13 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const userId =
+      typeof body?.userId === 'string' ? body.userId.trim() : '';
+
+    if (!userId) {
+      return NextResponse.json({ error: 'userId is required' }, { status: 400 });
+    }
+
     const apiKey = process.env.HEYGEN_API_KEY;
 
     const response = await fetch(
@@ -57,7 +64,7 @@ ${body.candidateContext || 'No context provided'}
 
     const session = await prisma.session.create({
       data: {
-        userId: body.userId,
+        userId,
         liveAvatarSessionId: liveSessionId,
       },
     });

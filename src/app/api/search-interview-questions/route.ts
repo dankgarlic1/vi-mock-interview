@@ -10,11 +10,19 @@ const interviewIndex = pc.index('ai-interviewe');
 
 export async function POST(req: NextRequest) {
   try {
-    const { query } = await req.json();
+    const body = await req.json();
+    const query = typeof body?.query === 'string' ? body.query.trim() : '';
 
     if (!query) {
       return NextResponse.json(
         { success: false, error: 'Query is required' },
+        { status: 400 }
+      );
+    }
+
+    if (query === 'undefined' || query === 'null') {
+      return NextResponse.json(
+        { success: false, error: 'Query is invalid' },
         { status: 400 }
       );
     }
